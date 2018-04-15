@@ -15,6 +15,7 @@ package zipkin2.codec;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Random;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -77,5 +78,26 @@ public class EncodingTest {
     int twentyNineBitNumber = 536870911;
     assertThat(Encoding.PROTO3.listSizeInBytes(twentyNineBitNumber))
       .isEqualTo(1 + 5 /* tag, length */ + twentyNineBitNumber);
+  }
+
+  @Test public void  unsignedVarintSize() {
+    assertThat(varIntSize(Integer.MIN_VALUE))
+      .isEqualTo(unsignedVarintSize(Integer.MIN_VALUE));
+  }
+
+  public static int varIntSize(int i) {
+    int result = 0;
+    do {
+      result++;
+      i >>>= 7;
+    } while (i != 0);
+    return result;
+  }
+  int unsignedVarintSize(int value) {
+    if ((value & (0xffffffff << 7)) == 0) return 1;
+    if ((value & (0xffffffff << 14)) == 0) return 2;
+    if ((value & (0xffffffff << 21)) == 0) return 3;
+    if ((value & (0xffffffff << 28)) == 0) return 4;
+    return 5;
   }
 }

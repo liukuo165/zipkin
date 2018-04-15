@@ -42,9 +42,9 @@ public class BufferTest {
     for (int codepoint : Arrays.asList(0xD800, 0xDFFF, 0xD83D)) {
       String test = new String(new int[] {'a', codepoint, 'c'}, 0, 3);
       assertThat(Buffer.utf8SizeInBytes(test))
-        .isEqualTo(3);
-      assertThat(new Buffer(3).writeUtf8(test).toByteArray())
-        .containsExactly('a', '?', 'c');
+        .isEqualTo(2);
+      assertThat(new Buffer(2).writeUtf8(test).toByteArray())
+        .containsExactly('a', '?');
     }
   }
 

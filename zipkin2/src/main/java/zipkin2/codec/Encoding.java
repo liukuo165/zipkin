@@ -41,8 +41,8 @@ public enum Encoding {
   PROTO3 {
     /** Returns the size of a length-prefixed field in a protobuf message */
     @Override public int listSizeInBytes(int encodedSizeInBytes) {
-      return 1 // assumes field number <= 127
-        + unsignedVarint(encodedSizeInBytes) // bytes to encode the length
+      return 1 // assumes field number <= 15
+        + unsignedVarintSize(encodedSizeInBytes) // bytes to encode the length
         + encodedSizeInBytes; // the actual length
     }
 
@@ -62,8 +62,9 @@ public enum Encoding {
      * <p>See https://developers.google.com/protocol-buffers/docs/encoding#varints
      *
      * <p>This logic is the same as {@code com.squareup.wire.WireOutput.varint32Size} v2.3.0
+     * which benchmarked faster than loop variants of the frequently copy/pasted VarInt.v
      */
-    int unsignedVarint(int value) {
+    int unsignedVarintSize(int value) {
       if ((value & (0xffffffff << 7)) == 0) return 1;
       if ((value & (0xffffffff << 14)) == 0) return 2;
       if ((value & (0xffffffff << 21)) == 0) return 3;
